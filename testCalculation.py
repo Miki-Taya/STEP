@@ -71,7 +71,7 @@ def tokenize(line):
 
 def calculationTimesDivide(tokens):
   index = 1
-  while index < len(tokens) - 1:               #calculation of TIMES and DIVIDE
+  while index < len(tokens) - 1:
       if tokens[index]['type'] == 'NUMBER':
           if tokens[index + 1]['type'] == 'TIMES':
               answerTimes = tokens[index]['number'] * tokens[index + 2]['number']
@@ -117,22 +117,22 @@ def parenthesesEvaluate(tokens):        #defeat parentheses.
   parCounter = 0
   leftParIndex = 0
   rightParIndex = 0
-  while index < len(tokens):
+  while index < len(tokens):    #get the parCounter and the index of the most right "(".
       if tokens[index]['type'] == 'LEFTPAR':
           leftParIndex = index
           parCounter += 1
           index += 1
       else:
           index += 1
-  index = leftParIndex + 4      #for example, the minimum size (3+4) show that ")" is fourth right of "()".
-  while index < len(tokens):
+  index = leftParIndex + 4      #for example, the minimum size (3+4) show that ")" is fourth right of "(".
+  while index < len(tokens):  #get the index of the most left ")".
       if tokens[index]['type'] == 'RIGHTPAR':
           rightParIndex = index
           break
       else:
           index += 1
-  if parCounter == 0:
-      print("tokens is",tokens)
+  if parCounter == 0:       #until becoming parCOunter==0, repeat parenthesesEvaluate and defeat parentheses.
+      print("tokens =",tokens)
       return tokens
   else:
       par = tokens[leftParIndex + 1 : rightParIndex]
@@ -144,7 +144,7 @@ def parenthesesEvaluate(tokens):        #defeat parentheses.
 def test(line):
   tokens = tokenize(line)
   tokens = parenthesesEvaluate(tokens)
-  print("after defeating parentheses, tokens is",tokens)
+  print("after defeating parentheses, tokens =",tokens)
   actualAnswer = evaluate(tokens)
   print(actualAnswer)
   expectedAnswer = eval(line)
@@ -174,6 +174,7 @@ def runTest():
   test("2*(1+1)+2/(1+1)")
   test("10*(3+2)/0.5-10*(7-2)")
   '''
+  test("2*(((1+3)*2+2)*2+1)")
   test("1+2*2")
   test("2*((2+6)*5+2)")
 
