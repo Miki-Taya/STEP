@@ -105,11 +105,21 @@ def calculationPlusMinus(tokens):
 
 
 def evaluate(tokens):
-  answer = 0
-  tokens.insert(0, {'type': 'PLUS'}) # Insert a dummy '+' token
-  tokens = calculationTimesDivide(tokens)
-  answer = calculationPlusMinus(tokens)
-  return answer
+    index = 1
+    while index < len(tokens) - 1:
+        if tokens[index]['type'] == 'MINUS':
+            if tokens[index - 1]['type'] == 'TIMES' or tokens[index - 1]['type'] == 'DIVIDE': #for example, 5*-1 change to -5*1.
+                del tokens[index]
+                tokens.insert(index - 2, {'type','MINUS'})
+            elif tokens[index - 1]['type'] == 'PLUS': #for example, 5+-1 change to 5-1.
+                del tokens[index]
+        index +=1
+
+    answer = 0
+    tokens.insert(0, {'type': 'PLUS'}) # Insert a dummy '+' token
+    tokens = calculationTimesDivide(tokens)
+    answer = calculationPlusMinus(tokens)
+    return answer
 
 
 def parenthesesEvaluate(tokens):        #defeat parentheses.
@@ -124,6 +134,10 @@ def parenthesesEvaluate(tokens):        #defeat parentheses.
           index += 1
       else:
           index += 1
+  if leftParIndex + 3 <len(tokens):
+      if tokens[leftParIndex + 3]['type'] == 'RIGHTPAR':  #for example, 2*(-3) change to 2*-3.
+        del tokens[leftParIndex]
+        del tokens[leftParIndex + 2]
   index = leftParIndex + 4      #for example, the minimum size (3+4) show that ")" is fourth right of "(".
   while index < len(tokens):  #get the index of the most left ")".
       if tokens[index]['type'] == 'RIGHTPAR':
@@ -131,22 +145,20 @@ def parenthesesEvaluate(tokens):        #defeat parentheses.
           break
       else:
           index += 1
-  if parCounter == 0:       #until becoming parCOunter==0, repeat parenthesesEvaluate and defeat parentheses.
-      print("tokens =",tokens)
+  if parCounter == 0:       #until becoming parCounter==0, repeat parenthesesEvaluate and defeat parentheses.
       return tokens
   else:
       par = tokens[leftParIndex + 1 : rightParIndex]
       del tokens[leftParIndex : rightParIndex + 1]
       tokens.insert(leftParIndex , {'type':'NUMBER','number':evaluate(par)})    #defeat one parentheses.
       parenthesesEvaluate(tokens)
+      return parenthesesEvaluate(tokens)
 
 
 def test(line):
   tokens = tokenize(line)
   tokens = parenthesesEvaluate(tokens)
-  print("after defeating parentheses, tokens =",tokens)
   actualAnswer = evaluate(tokens)
-  print(actualAnswer)
   expectedAnswer = eval(line)
   if abs(actualAnswer - expectedAnswer) < 1e-8:
     print("PASS! (%s = %f)" % (line, expectedAnswer))
@@ -157,7 +169,7 @@ def test(line):
 # Add more tests to this function :)
 def runTest():
   print("==== Test started! ====")
-  '''
+
   test("1+2")
   test("1.0+2.1-3")
   test("3*4")
@@ -169,14 +181,15 @@ def runTest():
   test("(12+3)*5")
   test("(12-3)/5")
   test("(1.2-3)*5")
-  test("(1.2+3)/5
+  test("(1.2+3)/5")
   test("12+(4+5)*0.1")
   test("2*(1+1)+2/(1+1)")
   test("10*(3+2)/0.5-10*(7-2)")
-  '''
   test("2*(((1+3)*2+2)*2+1)")
   test("1+2*2")
   test("2*((2+6)*5+2)")
+  test("2*(-3)")
+  test("2*(5-8)")
 
 
   print("==== Test finished! ====\n")
