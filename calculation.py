@@ -104,26 +104,13 @@ def calculatePlusMinus(tokens):
   return answer
 
 
-def processNegativeNumber(tokens):
-    index = 1
-    while index < len(tokens) - 1:
-        if tokens[index]['type'] == 'MINUS':
-            if tokens[index - 1]['type'] == 'TIMES' or tokens[index - 1]['type'] == 'DIVIDE': #for example, 5*-1 change to -5*1.
-                del tokens[index]
-                tokens.insert(index - 2, {'type','MINUS'})
-            elif tokens[index - 1]['type'] == 'PLUS': #for example, 5+-1 change to 5-1.
-                del tokens[index]
-        index +=1
-    return tokens
-
-
 def evaluate(tokens):
-    tokens = processNegativeNumber(tokens)
     answer = 0
     tokens.insert(0, {'type': 'PLUS'}) # Insert a dummy '+' token
     tokens = calculateTimesDivide(tokens)
     answer = calculatePlusMinus(tokens)
     return answer
+
 
 def readLeftParIndexAndParCounter(tokens):
     index = 0
@@ -141,7 +128,7 @@ def readLeftParIndexAndParCounter(tokens):
 
 def readRightParIndex(tokens , leftParIndex):
     rightParIndex = 0
-    index = leftParIndex + 4      #for example, the minimum size (3+4) show that ")" is fourth right of "(".
+    index = leftParIndex
     while index < len(tokens):  #get the index of the most left ")".
         if tokens[index]['type'] == 'RIGHTPAR':
             rightParIndex = index
@@ -151,14 +138,6 @@ def readRightParIndex(tokens , leftParIndex):
     return rightParIndex
 
 
-def deletePar(tokens , leftParIndex):
-    if leftParIndex + 3 <len(tokens):
-        if tokens[leftParIndex + 3]['type'] == 'RIGHTPAR':  #for example, 2*(-3) change to 2*-3.
-            del tokens[leftParIndex]
-            del tokens[leftParIndex + 2]
-    return tokens
-
-
 def evaluateParentheses(tokens):        #defeat parentheses.
   index = 0
   parCounter = 0
@@ -166,7 +145,6 @@ def evaluateParentheses(tokens):        #defeat parentheses.
   rightParIndex = 0
   (leftParIndex , parCounter) = readLeftParIndexAndParCounter(tokens)
   rightParIndex = readRightParIndex(tokens , leftParIndex)
-  tokens = deletePar(tokens , leftParIndex)
   if parCounter == 0:       #until becoming parCounter==0, repeat parenthesesEvaluate and defeat parentheses.
       return tokens
   else:
@@ -190,27 +168,43 @@ def test(line):
 
 # Add more tests to this function :)
 def runTest():
-  print("==== Test started! ====")
+    print("==== Test started! ====")
+    test("1")  # one figure
+    test("1+2") # one +
+    test("1+2+3") #two +
+    test("1-2")  # one -
+    test("1-2-3")  # two -
+    test("1+2-3")  # + -
+    test("-2+4")  # - +
+    test("2*3") # one *
+    test("2*3*4")  # two *
+    test("4/2")  #one /
+    test("4/2/2")  # two /
+    test("2*3/5")  # * /
+    test("4/2*3")  # / *
+    test("2+3*5")  # + *
+    test("2*3+5")  # * +
+    test("2+3/5")  # + /
+    test("2/4+5")  # / +
+    test("2-4*5")  # - *
+    test("2*4-5")  # * -
+    test("2+4-5")  # + /
+    test("2/4+5")  # / +
+    test("2-4/5")  # - /
+    test("2/4-5")  # / -
+    test("2+4-5*2/5")  # + - * /
+    test("(1)") #(one positive)
+    test("(-1)") #(one negative)
+    test("(5-3)") # (positive)
+    test("(-9-8)") # (negative)
+    test("4+(5-3)") # + (positive)
+    test("4+(4-6)") # + (negative)
+    test("2*(5-3)") # * (positive)
+    test("2*(3-5)") # * (negative)
+    test("((5-4)*3-7)*2") #(())
+    test("(((5-4)*3-7)*2-4)*2")  #((()))
 
-  test("2+3")
-  test("2-3")
-  test("2*3")
-  test("2/3")
-  test("2+3-4")
-  test("2*3/4")
-  test("2+3*4")
-  test("2-3/4")
-  test("2+3*4-5/10")
-  test("0.5+0.1/2.5-1.2")
-  test("0.5+0.1/25-12*0.4")
-  test("(12-3)*5")
-  test("((3-1)/4+2)*5")
-  test("(6-2)*2+(8-5)/4")
-  test("2+(-5)")
-  test("2*(-5)")
-  test("3*(2-6)+(1-4)/6")
-
-  print("==== Test finished! ====\n")
+    print("==== Test finished! ====\n")
 
 runTest()
 
