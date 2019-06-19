@@ -8,9 +8,9 @@ def readTextToList(text):
     return list
 
 def scanFromTo():
-    print("from:")
+    print("from : ", end = '')
     fromName = input()
-    print("to:")
+    print("to : ", end = '')
     toName = input()
     return fromName, toName
 
