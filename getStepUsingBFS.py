@@ -1,10 +1,11 @@
 from collections import defaultdict
-import queue
+from collections import deque
 
 def readTextToList(text):
     list = []
     for line in open(text,"r"):
-        list += line[:-1].split("\t")
+        temp_list = line[:-1].split("\t")
+        list.append(tuple(temp_list))
     return list
 
 def scanFromTo():
@@ -17,46 +18,78 @@ def scanFromTo():
 def makeDict(followData):
     index = 0
     followDict = defaultdict(list)
-    while index < len(followData) - 1:
-        followDict[followData[index]].append(followData[index + 1])
-        index += 2
+    for i in range(len(followData)):
+        followDict[followData[i][0]].append(followData[i][1])
     return followDict
 
-def getStep(nameData, followData, followDict):
-    q = queue.Queue()
+def getStep(nameData, followData, followDict, fromName, toName):
+    pendingNodes = deque([])
     checkList = []
+    countList =[]
     counter = 0
-    (fromName, toName) = scanFromTo()
-    if (fromName in nameData) and (toName in nameData):
-        q.put(nameData[nameData.index(fromName)-1])
-        q.put('*')
-        quitCounter = 0
-        while quitCounter >= 0:  # If there are consective `*`, quit repeating.
-            qContent = q.get()
-            if qContent == nameData[nameData.index(toName)-1]:
-                print(counter, "STEP!!")
+    judgeFrom = 0
+    judgeTo = 0
+    fromIndex = 0
+    toIndex = 0
+    for Tuple in nameData:
+        print(fromName in Tuple)
+        if fromName in Tuple == True:
+            judgeFrom = fromName in Tuple
+            print(judgeFrom)
+            fromIndex = int(Tuple[0])
+            break
+    for Tuple in nameData:
+        if toName in Tuple == True:
+            judgeTo = toName in Tuple
+            print(judgeTo)
+            toIndex = int(Tuple[0])
+            break
+    fromNumber = nameData[fromIndex][0]
+    toNumber = nameData[toIndex][0]
+    countList.append(toNumber)
+    if (judgeFrom == 1) and (judgeTo == 1):
+        pendingNodes.append(fromNumber)
+        while len(pendingNodes) > 0:
+            pendingNodesContent = pendingNodes.popleft()
+            if pendingNodesContent == toNumber:
+                return counter
+            elif pendingNodesContent not in checkList:
+                checkList.append(pendingNodesContent)
+                dictContent = followDict[str(pendingNodesContent)]
+                pendingNodes.extend(dictContent)
+                if pendingNodesContent in countList:
+                    countList.append(dictContent[-1])
+                    counter += 1
+            elif len(pendingNode) == 0:
+                print("Oh, not connecting from", nameData[fromIndex][1], "to", nameData[toIndex][1])
                 break
-            elif qContent == '*':
-                quitCounter -= 1
-                q.put('*')
-                counter += 1
-            elif not(qContent in checkList):
-                quitCounter = 1
-                checkList.append(qContent)
-                for  followingnumber in followDict[str(qContent)]:
-                    q.put(followingnumber)
-        if quitCounter == -1:
-                        print("Oh, not connecting from", fromName, "to", toName)
-    elif not(fromName in nameData) and not(toName in nameData):
-        print(fromName, "and", toName, "are not in nicknames list.")
-    elif not(fromName in nameData):
-        print(fromName, "is not in nicknames list.")
+    elif (judgeFrom == 0) and (judgeTo == 0):
+        print(nameData[fromIndex][1], "and", nameData[toIndex][1], "are not in nicknames list.")
+    elif (judgeFrom == 0) and (judgeTo == 1):
+        print(nameData[fromIndex][1], "is not in nicknames list.")
     else:
-        print(toName, "is not in nicknames list.")
+        print(nameData[toIndex][1], "is not in nicknames list.")
 
+def test(fromName, toName):
+    followData = readTextToList("links.txt")
+    nameData = readTextToList("nicknames.txt")
+    followDict = makeDict(followData)
+    counter = getStep(nameData, followData, followDict, fromName, toName)
+    print(counter)
+
+def runTest():
+    print("==== Test started! ====")
+    test('jacob', 'amy')
+    test('jacob', 'billy')
+    test('jacob', 'karl')
+    print("==== Test finished! ====\n")
+
+runTest()
 
 
 followData = readTextToList("links.txt")
 nameData = readTextToList("nicknames.txt")
 followDict = makeDict(followData)
-getStep(nameData, followData, followDict)
+(fromName, toName) = scanFromTo()
+counter = getStep(nameData, followData, followDict, fromName, toName)
+print(counter)
