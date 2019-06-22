@@ -38,10 +38,6 @@ def getStep(nameData, followData, followDict, fromInput, toInput):
     checkList = []
     countList =[]
     counter = 0
-    judgeFrom = 0
-    judgeTo = 0
-    fromIndex = 0
-    toIndex = 0
     (judgeFrom, fromIndex) = judgeInputAndGetIndex(nameData, fromInput)
     (judgeTo, toIndex) = judgeInputAndGetIndex(nameData, toInput)
     countList.append(fromIndex)
@@ -59,7 +55,7 @@ def getStep(nameData, followData, followDict, fromInput, toInput):
                     countList.append(dictContent[-1])
                     counter += 1
             elif len(pendingNodes) == 0:
-                print("Oh, not connecting from", fromInput, "to", toInput)
+                print("Oh, not connecting from", nameData[int(fromIndex)][1], "to", nameData[int(toIndex)][1])
                 break
     elif (judgeFrom == 0) and (judgeTo == 0):
         print(fromInput, "and", toInput, "are not in nicknames list.")
@@ -78,9 +74,11 @@ def test(fromInput, toInput):
 
 def runTest():
     print("==== Test started! ====")
-    test("jacob", "amy")
-    test("jacob", "billy")
-    test("jacob", "karl")
+    test("23", "21")
+    test("23","amy")
+    test("amy", "23")
+    test("jacob", "jacob")
+
     print("==== Test finished! ====\n")
 
 runTest()
