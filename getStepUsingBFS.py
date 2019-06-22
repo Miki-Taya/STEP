@@ -22,7 +22,18 @@ def makeDict(followData):
         followDict[followData[i][0]].append(followData[i][1])
     return followDict
 
-def getStep(nameData, followData, followDict, fromName, toName):
+def judgeInputAndGetIndex(nameData, input):
+    judge = 0
+    inputIndex = 0
+    for Tuple in nameData:
+        index, name = Tuple
+        if name == input or index == input: #admit the input of name and index.
+            judge = True
+            inputIndex = index
+            break
+    return judge, inputIndex
+
+def getStep(nameData, followData, followDict, fromInput, toInput):
     pendingNodes = deque([])
     checkList = []
     countList =[]
@@ -31,57 +42,45 @@ def getStep(nameData, followData, followDict, fromName, toName):
     judgeTo = 0
     fromIndex = 0
     toIndex = 0
-    for Tuple in nameData:
-        print(fromName in Tuple)
-        if fromName in Tuple == True:
-            judgeFrom = fromName in Tuple
-            print(judgeFrom)
-            fromIndex = int(Tuple[0])
-            break
-    for Tuple in nameData:
-        if toName in Tuple == True:
-            judgeTo = toName in Tuple
-            print(judgeTo)
-            toIndex = int(Tuple[0])
-            break
-    fromNumber = nameData[fromIndex][0]
-    toNumber = nameData[toIndex][0]
-    countList.append(toNumber)
+    (judgeFrom, fromIndex) = judgeInputAndGetIndex(nameData, fromInput)
+    (judgeTo, toIndex) = judgeInputAndGetIndex(nameData, toInput)
+    countList.append(fromIndex)
     if (judgeFrom == 1) and (judgeTo == 1):
-        pendingNodes.append(fromNumber)
+        pendingNodes.append(fromIndex)
         while len(pendingNodes) > 0:
             pendingNodesContent = pendingNodes.popleft()
-            if pendingNodesContent == toNumber:
+            if pendingNodesContent == toIndex:
                 return counter
             elif pendingNodesContent not in checkList:
                 checkList.append(pendingNodesContent)
-                dictContent = followDict[str(pendingNodesContent)]
+                dictContent = followDict[pendingNodesContent]
                 pendingNodes.extend(dictContent)
-                if pendingNodesContent in countList:
+                if pendingNodesContent in countList:  # for count step.
                     countList.append(dictContent[-1])
                     counter += 1
-            elif len(pendingNode) == 0:
-                print("Oh, not connecting from", nameData[fromIndex][1], "to", nameData[toIndex][1])
+            elif len(pendingNodes) == 0:
+                print("Oh, not connecting from", fromInput, "to", toInput)
                 break
     elif (judgeFrom == 0) and (judgeTo == 0):
-        print(nameData[fromIndex][1], "and", nameData[toIndex][1], "are not in nicknames list.")
+        print(fromInput, "and", toInput, "are not in nicknames list.")
     elif (judgeFrom == 0) and (judgeTo == 1):
-        print(nameData[fromIndex][1], "is not in nicknames list.")
+        print(fromInput, "is not in nicknames list.")
     else:
-        print(nameData[toIndex][1], "is not in nicknames list.")
+        print(toInput, "is not in nicknames list.")
 
-def test(fromName, toName):
+def test(fromInput, toInput):
     followData = readTextToList("links.txt")
     nameData = readTextToList("nicknames.txt")
     followDict = makeDict(followData)
-    counter = getStep(nameData, followData, followDict, fromName, toName)
-    print(counter)
+    counter = getStep(nameData, followData, followDict, fromInput, toInput)
+    if counter != None:
+        print(counter)
 
 def runTest():
     print("==== Test started! ====")
-    test('jacob', 'amy')
-    test('jacob', 'billy')
-    test('jacob', 'karl')
+    test("jacob", "amy")
+    test("jacob", "billy")
+    test("jacob", "karl")
     print("==== Test finished! ====\n")
 
 runTest()
@@ -90,6 +89,7 @@ runTest()
 followData = readTextToList("links.txt")
 nameData = readTextToList("nicknames.txt")
 followDict = makeDict(followData)
-(fromName, toName) = scanFromTo()
-counter = getStep(nameData, followData, followDict, fromName, toName)
-print(counter)
+(fromInput, toInput) = scanFromTo()
+counter = getStep(nameData, followData, followDict, fromInput, toInput)
+if counter != None:
+    print(counter)
